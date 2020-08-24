@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+
+  dc:
+    build: .
+    environment:
+      - LDAP_ALLOW_INSECURE=true
+      - SAMBA_USERS=admin:admin,test1:test,test2:test
+    links:
+      - phpldapadmin
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    environment:
+      - PHPLDAPADMIN_HTTPS=false
+      - PHPLDAPADMIN_LDAP_HOSTS=dc
+    ports:
+      - 8080:80

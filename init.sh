@@ -53,8 +53,10 @@ appSetup() {
 
   # Import users from SAMBA_USERS
   if [ -n "${SAMBA_USERS}" ]; then
-
-    samba-tool domain exportkeytab /etc/krb5.keytab --principal ${HOSTNAME}\$
+    IFS="," read -a users <<< ${SAMBA_USERS}
+    for userpassword in "${users[@]}"; do
+      samba-tool user create ${userpassword/:/ }
+    done
   fi
 
   cp /etc/samba/smb.conf $SAMBA_CONF_BACKUP
@@ -84,32 +86,32 @@ appHelp() {
 }
 
 case "$1" in
-app:start)
-  appStart
-  ;;
-app:setup)
-  appSetup
-  ;;
-app:setup_start)
-  appSetup
-  appStart
-  ;;
-app:help)
-  appHelp
-  ;;
-*)
-  if [ -x $1 ]; then
-    $1
-  else
-    prog=$(which $1)
-    if [ -n "${prog}" ]; then
-      shift 1
-      $prog $@
+  app:start)
+    appStart
+    ;;
+  app:setup)
+    appSetup
+    ;;
+  app:setup_start)
+    appSetup
+    appStart
+    ;;
+  app:help)
+    appHelp
+    ;;
+  *)
+    if [ -x $1 ]; then
+      $1
     else
-      appHelp
+      prog=$(which $1)
+      if [ -n "${prog}" ]; then
+        shift 1
+        $prog $@
+      else
+        appHelp
+      fi
     fi
-  fi
-  ;;
+    ;;
 esac
 
 exit 0
