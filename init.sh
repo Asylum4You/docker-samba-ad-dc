@@ -36,7 +36,12 @@ appSetup () {
 	    \\\t\# enable unencrypted passwords\n\
     	ldap server require strong auth = no\
     	" /etc/samba/smb.conf
-	fi
+	samba-tool domain passwordsettings set --complexity=off
+	samba-tool domain passwordsettings set --history-length=0
+	samba-tool domain passwordsettings set --min-pwd-length=0
+	samba-tool domain passwordsettings set --min-pwd-age=0
+	samba-tool domain passwordsettings set --max-pwd-age=0
+    fi
     # Create Kerberos database
     expect kdb5_util_create.expect
 
